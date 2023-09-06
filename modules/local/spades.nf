@@ -19,7 +19,7 @@ process SPADES {
 
     script:
     def args = task.ext.args ?: ''
-    maxmem = task.memory.toGiga()
+    availmem = (task.memory.mega*0.8).intValue().toGiga()
     // The -s option is not supported for metaspades. Each time this is called with `meta.single_end` it's because
     // read depth was normalized with BBNorm, which actually outputs pairs, but in an interleaved file.
     def readstr = meta.single_end ? "--12 ${reads}" : "-1 ${reads[0]} -2 ${reads[1]}"
@@ -29,7 +29,7 @@ process SPADES {
         metaspades.py \
             $args \
             --threads "${task.cpus}" \
-            --memory $maxmem \
+            --memory $availmem \
             ${readstr} \
             -o spades
         mv spades/assembly_graph_with_scaffolds.gfa SPAdes-${meta.id}_graph.gfa
